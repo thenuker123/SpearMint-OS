@@ -12,14 +12,10 @@ sudo rm -f /etc/apt/sources.list.d/kali.list /etc/apt/sources.list.d/mint.list
 echo "Step 1: Safely Injecting Linux Mint Keyring & Repositories..."
 sudo mkdir -p /etc/apt/keyrings
 
-# 1. Download the raw armored ASCII key from the Ubuntu keyserver keyspool
-wget -qO- "https://ubuntu.com" > mint-key.asc
+# 1. Download the raw binary keyring directly from Mint's repository files instead of using keyservers
+sudo wget -qO /etc/apt/keyrings/linuxmint-keyring.gpg https://github.com
 
-# 2. De-armor the text key into a compiled binary .gpg layout that APT accepts
-sudo gpg --dearmor -o /etc/apt/keyrings/linuxmint-keyring.gpg < mint-key.asc
-rm -f mint-key.asc
-
-# 3. Add the Mint repository linked cleanly to that new signed key
+# 2. Add the Mint repository linked cleanly to that new signed key
 echo "deb [signed-by=/etc/apt/keyrings/linuxmint-keyring.gpg] http://packages.linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
 
 # Enable 32-bit architecture for Windows games via Steam/Wine
