@@ -1,0 +1,41 @@
+name: Compile SpearMint OS ISO
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-iso:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source Code repository
+      uses: actions/checkout@v4
+
+    - name: Set up Build Environments
+      run: |
+        sudo apt update
+        sudo apt install xorriso squid-deb-proxy-client live-build -y
+
+    - name: Copy Custom Switch Utilities
+      run: |
+        sudo mkdir -p /usr/local/bin
+        sudo cp spearmint-switch.sh /usr/local/bin/spearmint-switch.sh
+        sudo chmod +x /usr/local/bin/spearmint-switch.sh
+        
+        sudo mkdir -p /etc/skel/Desktop
+        sudo cp SpearMint-Switch.desktop /etc/skel/Desktop/
+        sudo chmod +x /etc/skel/Desktop/SpearMint-Switch.desktop
+
+    - name: Compile Mint-Kali Live Bootable ISO
+      run: |
+        chmod +x build.sh
+        sudo ./build.sh
+        mkdir output
+        sudo mkhybrid -o output/SpearMint-v1.iso .
+        
+    - name: Deploy Compiled OS to GitHub Releases
+      uses: softprops/action-gh-release@v2
+      with:
+        files: output/SpearMint-v1.iso
+        tag_name: v1.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

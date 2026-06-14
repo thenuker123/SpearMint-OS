@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Flip the SpearMint Switch
+Comment=Toggle between Ultra Gaming Mode and Code Development Mode
+Exec=bash /usr/local/bin/spearmint-switch.sh
+Icon=preferences-system-performance
+Terminal=false
+Categories=Utility;System;
