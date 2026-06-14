@@ -1,11 +1,14 @@
-name: Compile SpearMint OS ISO
+name: Compile SpearMint OS ISOs
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  build-iso:
+  build-variants:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        variant: [essentials, ultimate]
     steps:
     - name: Checkout Source Code repository
       uses: actions/checkout@v4
@@ -28,14 +31,15 @@ jobs:
     - name: Compile Mint-Kali Live Bootable ISO
       run: |
         chmod +x build.sh
-        sudo ./build.sh
+        # Pass the matrix variable (essentials or ultimate) directly to the build script
+        sudo ./build.sh ${{ matrix.variant }}
         mkdir output
-        sudo mkhybrid -o output/SpearMint-v1.iso .
+        sudo mkhybrid -o output/SpearMint-${{ matrix.variant }}-v1.iso .
         
-    - name: Deploy Compiled OS to GitHub Releases
+    - name: Deploy Compiled OS Variants to GitHub Releases
       uses: softprops/action-gh-release@v2
       with:
-        files: output/SpearMint-v1.iso
+        files: output/SpearMint-${{ matrix.variant }}-v1.iso
         tag_name: v1.0.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
