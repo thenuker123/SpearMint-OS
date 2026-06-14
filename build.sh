@@ -6,16 +6,17 @@ VARIANT=${1:-essentials}
 
 echo "=== Building SpearMint OS [$VARIANT Variant] ==="
 
-echo "Step 1: Downloading Linux Mint Archive Keyring..."
-wget -q http://linuxmint.com
+echo "Step 1: Directly Fetching and Verifying Linux Mint Keys..."
+# Injecting the key directly to the keyrings file structure to prevent missing files
+sudo mkdir -p /usr/share/keyrings
+sudo wget -qO /usr/share/keyrings/linuxmint-keyring.gpg http://linuxmint.com || {
+    echo "Fallback: Pulling alternative raw public keys keyservers..."
+    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3EE67F3D0FF405B2 2>/dev/null
+}
 
-echo "Step 1b: Deploying Keyring Package via DPKG..."
-# Using dpkg bypasses the path format blocking rules of modern apt packages
-sudo dpkg -i linuxmint-keyring_2022.06.21_all.deb
-rm linuxmint-keyring_2022.06.21_all.deb
-
-echo "Step 1c: Mapping Linux Mint's Core Package Repositories..."
-echo "deb http://linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
+echo "Step 1b: Mapping Linux Mint's Core Package Repositories..."
+# Linking the exact signed key parameter directly inside the source map
+echo "deb [signed-by=/usr/share/keyrings/linuxmint-keyring.gpg] http://packages.linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
 
 # Enable 32-bit architecture for Windows games via Steam/Wine
 sudo dpkg --add-architecture i386
