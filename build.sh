@@ -6,12 +6,15 @@ VARIANT=${1:-essentials}
 
 echo "=== Building SpearMint OS [$VARIANT Variant] ==="
 
-echo "Step 1: Downloading and Injecting Linux Mint Archive Keyring..."
+echo "Step 1: Downloading Linux Mint Archive Keyring..."
 wget -q http://linuxmint.com
-sudo apt install ./linuxmint-keyring_2022.06.21_all.deb -y
+
+echo "Step 1b: Deploying Keyring Package via DPKG..."
+# Using dpkg bypasses the path format blocking rules of modern apt packages
+sudo dpkg -i linuxmint-keyring_2022.06.21_all.deb
 rm linuxmint-keyring_2022.06.21_all.deb
 
-echo "Step 1b: Mapping Linux Mint's Core Package Repositories..."
+echo "Step 1c: Mapping Linux Mint's Core Package Repositories..."
 echo "deb http://linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
 
 # Enable 32-bit architecture for Windows games via Steam/Wine
@@ -21,12 +24,10 @@ echo "Step 2: Syncing system indexes..."
 sudo apt update && sudo apt upgrade -y
 
 echo "Step 3: Fetching Pre-compiled Kali Security Keyrings..."
-# Pulling the modern pre-compiled official binary directly to satisfy signature keys
-sudo wget -q https://archive.kali.org/archive-keyring.gpg -O /usr/share/keyrings/kali-archive-keyring.gpg
+sudo wget -q https://kali.org -O /usr/share/keyrings/kali-archive-keyring.gpg
 
 echo "Step 3b: Ingesting verified Kali Linux mirror configurations..."
-# Referencing the exact key file via signed-by parameters to ensure compliance
-echo "deb [signed-by=/usr/share/keyrings/kali-archive-keyring.gpg] http://http.kali.org/kali kali-rolling main contrib non-free non-free-firmware" | sudo tee /etc/apt/sources.list.d/kali.list
+echo "deb [signed-by=/usr/share/keyrings/kali-archive-keyring.gpg] http://kali.org kali-rolling main contrib non-free non-free-firmware" | sudo tee /etc/apt/sources.list.d/kali.list
 
 echo "Step 4: Executing full system authentication sync..."
 sudo apt update
