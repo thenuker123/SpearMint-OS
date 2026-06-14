@@ -6,9 +6,14 @@ VARIANT=${1:-essentials}
 
 echo "=== Building SpearMint OS [$VARIANT Variant] ==="
 
-echo "Step 1: Fetching Linux Mint's Core Package Repositories..."
-sudo apt-get install linuxmint-keyring -y
-echo "deb http://linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
+echo "Step 1: Downloading and Injecting Linux Mint Archive Keyring..."
+# Pulling the key package directly from the Mint servers to satisfy Ubuntu's APT
+wget -q http://packages.linuxmint.com/pool/main/l/linuxmint-keyring/linuxmint-keyring_2022.06.21_all.deb
+sudo apt install ./linuxmint-keyring_2022.06.21_all.deb -y
+rm linuxmint-keyring_2022.06.21_all.deb
+
+echo "Step 1b: Mapping Linux Mint's Core Package Repositories..."
+echo "deb http://packages.linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
 
 # Enable 32-bit architecture for Windows games via Steam/Wine
 sudo dpkg --add-architecture i386
@@ -27,18 +32,13 @@ if [ "$VARIANT" == "essentials" ]; then
     sudo apt install mint-meta-xfce -y
 
     echo "Step 5: Installing Core Essentials Only..."
-    # Light-weight target profile
     sudo apt install kali-linux-core gamemode build-essential git python3-venv -y
 
 elif [ "$VARIANT" == "ultimate" ]; then
     echo "Step 4: Installing COMPLETE Linux Mint Desktop Suitcase..."
-    # mint-meta-codecs: Media codecs, audio players, video players, and fonts
-    # mint-meta-core: Full Mint system components, system settings, mintupdate, mintinstall
     sudo apt install mint-meta-core mint-meta-xfce mint-meta-codecs -y
 
     echo "Step 5: Installing COMPLETE Kali Linux Professional Ecosystem..."
-    # kali-linux-everything: Pulls down every single tool, driver, and manual Kali offers (approx. 20GB+ data)
-    # kali-desktop-xfce: Forces Kali's customized background scripts, themes, and configuration assets
     sudo apt install kali-linux-everything kali-desktop-xfce -y
     
     echo "Step 6: Injecting Ultimate Gaming & Development Performance Stack..."
