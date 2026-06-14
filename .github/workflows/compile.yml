@@ -18,30 +18,28 @@ jobs:
 
     - name: Set up Build Environments
       run: |
-        sudo apt-get update
+        sudo apt-get update -y
         sudo apt-get install xorriso -y
-
-    - name: Copy Custom Switch Utilities
-      run: |
-        sudo mkdir -p /usr/local/bin
-        sudo cp spearmint-switch.sh /usr/local/bin/spearmint-switch.sh
-        sudo chmod +x /usr/local/bin/spearmint-switch.sh
-        
-        sudo mkdir -p /etc/skel/Desktop
-        sudo cp SpearMint-Switch.desktop /etc/skel/Desktop/
-        sudo chmod +x /etc/skel/Desktop/SpearMint-Switch.desktop
 
     - name: Compile Mint-Kali Live Bootable ISO
       run: |
         chmod +x build.sh
         sudo ./build.sh ${{ matrix.variant }}
-        mkdir output
-        sudo xorrisofs -o output/SpearMint-${{ matrix.variant }}-v1.iso -R -J .
         
+    - name: Inject Utilities into Build Layout
+      run: |
+        mkdir -p output_iso/usr/local/bin
+        cp spearmint-switch.sh output_iso/usr/local/bin/
+        
+        mkdir -p output_iso/etc/skel/Desktop
+        cp SpearMint-Switch.desktop output_iso/etc/skel/Desktop/
+        
+        sudo xorrisofs -o SpearMint-${{ matrix.variant }}-v1.iso -R -J output_iso/
+
     - name: Deploy Compiled OS Variants to GitHub Releases
       uses: softprops/action-gh-release@v2
       with:
-        files: output/SpearMint-${{ matrix.variant }}-v1.iso
+        files: SpearMint-${{ matrix.variant }}-v1.iso
         tag_name: v1.0.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
