@@ -3,7 +3,6 @@ on:
   push:
     branches: [ "main" ]
 
-# Forcing the workflow engines over to modern node runtimes explicitly
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -19,8 +18,8 @@ jobs:
 
     - name: Set up Build Environments
       run: |
-        sudo apt update
-        sudo apt install xorriso squid-deb-proxy-client live-build -y
+        sudo apt-get update
+        sudo apt-get install xorriso -y
 
     - name: Copy Custom Switch Utilities
       run: |
@@ -37,7 +36,7 @@ jobs:
         chmod +x build.sh
         sudo ./build.sh ${{ matrix.variant }}
         mkdir output
-        sudo mkhybrid -o output/SpearMint-${{ matrix.variant }}-v1.iso .
+        sudo xorrisofs -o output/SpearMint-${{ matrix.variant }}-v1.iso -R -J .
         
     - name: Deploy Compiled OS Variants to GitHub Releases
       uses: softprops/action-gh-release@v2
