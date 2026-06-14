@@ -3,6 +3,10 @@ on:
   push:
     branches: [ "main" ]
 
+# Forcing the workflow engines over to modern node runtimes explicitly
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-variants:
     runs-on: ubuntu-latest
@@ -31,7 +35,6 @@ jobs:
     - name: Compile Mint-Kali Live Bootable ISO
       run: |
         chmod +x build.sh
-        # Pass the matrix variable (essentials or ultimate) directly to the build script
         sudo ./build.sh ${{ matrix.variant }}
         mkdir output
         sudo mkhybrid -o output/SpearMint-${{ matrix.variant }}-v1.iso .

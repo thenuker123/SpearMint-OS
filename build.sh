@@ -6,13 +6,15 @@ VARIANT=${1:-essentials}
 
 echo "=== Building SpearMint OS [$VARIANT Variant] ==="
 
-# Clean out any old broken manual kali or mint configurations left in the system pools
+# Clean out any old broken configurations
 sudo rm -f /etc/apt/sources.list.d/kali.list /etc/apt/sources.list.d/mint.list
 
-echo "Step 1: Injecting Linux Mint Repositories & Security Keys..."
-# Pull the verified security key from the server
-sudo apt-key adv --keyserver ://ubuntu.com --recv-keys A6616109451BBBF2 2>/dev/null
-echo "deb http://linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
+echo "Step 1: Safely Injecting Linux Mint Keyring & Repositories..."
+sudo mkdir -p /etc/apt/keyrings
+# Downloading the signature key as a direct raw binary block
+sudo curl -fsSL "https://ubuntu.com" | sudo gpg --dearmor -o /etc/apt/keyrings/linuxmint-keyring.gpg
+
+echo "deb [signed-by=/etc/apt/keyrings/linuxmint-keyring.gpg] http://linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
 
 # Enable 32-bit architecture for Windows games via Steam/Wine
 sudo dpkg --add-architecture i386
