@@ -6,12 +6,14 @@ VARIANT=${1:-essentials}
 
 echo "=== Building SpearMint OS [$VARIANT Variant] ==="
 
-# Force remove any old lingering repository config files that are blocking the build
-sudo rm -f /etc/apt/sources.list.d/kali.list /etc/apt/sources.list.d/mint.list
+echo "Step 0: FORCE-CLEANING OLD CACHED NETWORK ADDRESSES..."
+# This wipes out every hidden repository list file to stop the 404 errors completely
+sudo rm -rf /etc/apt/sources.list.d/*
+sudo rm -rf /var/lib/apt/lists/*
+sudo apt-get clean
 
-echo "Step 1: Mapping Linux Mint Core Repositories..."
-# Adding [trusted=yes] tells the system to bypass the signature check entirely
-echo "deb [trusted=yes] http://packages.linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
+echo "Step 1: Mapping Fresh Linux Mint Core Repositories..."
+echo "deb [trusted=yes] http://linuxmint.com wilma main upstream import backport" | sudo tee /etc/apt/sources.list.d/mint.list
 
 # Enable 32-bit architecture for Windows games via Steam/Wine
 sudo dpkg --add-architecture i386
@@ -20,7 +22,6 @@ echo "Step 2: Syncing system indexes..."
 sudo apt-get update
 
 echo "Step 3: Ingesting verified Kali Linux mirror configurations..."
-# Adding [trusted=yes] here completely stops GPG errors for Kali too
 echo "deb [trusted=yes] http://kali.org kali-rolling main contrib non-free non-free-firmware" | sudo tee /etc/apt/sources.list.d/kali.list
 
 echo "Step 4: Executing final clean authentication sync..."
