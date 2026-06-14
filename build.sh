@@ -21,22 +21,29 @@ sudo wget -q -O - https://kali.org | gpg --dearmor | sudo tee /etc/apt/trusted.g
 echo "deb http://kali.org kali-rolling main contrib non-free non-free-firmware" | sudo tee /etc/apt/sources.list.d/kali.list
 sudo apt update
 
-echo "Step 4: Installing Mint Desktop Base..."
-sudo apt install mint-meta-xfce -y
-
-# === CONDITIONAL CONFIGURATION SPLIT ===
+# === THE UNCOMPROMISING MASTER SPLIT ===
 if [ "$VARIANT" == "essentials" ]; then
+    echo "Step 4: Installing Mint Desktop Base..."
+    sudo apt install mint-meta-xfce -y
+
     echo "Step 5: Installing Core Essentials Only..."
-    # Only the bare minimum needed for basic functionality
+    # Light-weight target profile
     sudo apt install kali-linux-core gamemode build-essential git python3-venv -y
 
 elif [ "$VARIANT" == "ultimate" ]; then
-    echo "Step 5: Installing Ultimate Full Framework Bundle..."
-    # Everything! Core tools + heavy hacking suites, web browsers, and media players
-    sudo apt install kali-linux-core kali-linux-default -y
+    echo "Step 4: Installing COMPLETE Linux Mint Desktop Suitcase..."
+    # mint-meta-codecs: Media codecs, audio players, video players, and fonts
+    # mint-meta-core: Full Mint system components, system settings, mintupdate, mintinstall
+    sudo apt install mint-meta-core mint-meta-xfce mint-meta-codecs -y
+
+    echo "Step 5: Installing COMPLETE Kali Linux Professional Ecosystem..."
+    # kali-linux-everything: Pulls down every single tool, driver, and manual Kali offers (approx. 20GB+ data)
+    # kali-desktop-xfce: Forces Kali's customized background scripts, themes, and configuration assets
+    sudo apt install kali-linux-everything kali-desktop-xfce -y
+    
+    echo "Step 6: Injecting Ultimate Gaming & Development Performance Stack..."
     sudo apt install gamemode mesa-utils vulkan-tools steam-installer wine64 -y
     sudo apt install build-essential git python3-venv nodejs npm docker.io -y
-    sudo apt install vlc gimp curl wget ufw -y
 fi
 
-echo "SpearMint Hybrid [$VARIANT] Core Built!"
+echo "SpearMint Hybrid [$VARIANT] Configuration Cycle Finished!"
